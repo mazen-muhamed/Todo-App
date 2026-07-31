@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ToDo</title>
+<style>
+  :root{
+    --bg:#F4F2EC;
+    --card:#FFFFFF;
+    --ink:#1E1E1C;
+    --muted:#88867C;
+    --line:#E8E5DA;
+    --accent:#2F6F5E;
+    --accent-dark:#204E42;
+    --accent-soft:#E6EFEC;
+    --accent-ink:#FFFFFF;
+    --danger:#B4483B;
+    --danger-soft:#F7E9E6;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
+    background:var(--bg);
+    background-image: radial-gradient(circle at 1px 1px, rgba(0,0,0,0.035) 1px, transparent 0);
+    background-size: 22px 22px;
+    color:var(--ink);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  .card{
+    width:100%;
+    max-width:380px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:36px 32px;
+    box-shadow:0 1px 2px rgba(30,30,28,0.04), 0 12px 32px rgba(30,30,28,0.06);
+  }
+  .brand{font-weight:700;font-size:22px;letter-spacing:-0.03em;margin-bottom:4px;}
+  .brand span{color:var(--accent);}
+  .sub{color:var(--muted);font-size:14px;margin-bottom:26px;}
+  label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin:14px 0 6px;text-transform:uppercase;letter-spacing:0.03em;}
+  input{
+    width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:10px;
+    font-size:14px;font-family:inherit;background:#FAFAF7;color:var(--ink);
+    transition:border-color .15s, background .15s;
+  }
+  input:focus{outline:none;border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px var(--accent-soft);}
+  button{
+    cursor:pointer;border:none;font-size:14px;font-weight:600;border-radius:10px;
+    font-family:inherit;transition:opacity .15s, transform .1s, background .15s, color .15s;
+  }
+  button:active{transform:scale(0.97);}
+  .primary{width:100%;padding:12px;margin-top:22px;background:var(--accent);color:var(--accent-ink);}
+  .primary:hover{background:var(--accent-dark);}
+  .switch{text-align:center;font-size:13px;color:var(--muted);margin-top:20px;}
+  .switch a{color:var(--accent);text-decoration:none;font-weight:600;cursor:pointer;}
+  .switch a:hover{text-decoration:underline;}
+  .error{color:var(--danger);font-size:13px;margin-top:10px;min-height:16px;}
+  .hidden{display:none !important;}
+
+  .app-card{max-width:480px;}
+  .app-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;}
+  .app-head .brand{margin-bottom:2px;}
+  .greeting{color:var(--muted);font-size:15px;}
+  .logout{background:var(--danger-soft);color:var(--danger);font-weight:600;font-size:13px;padding:8px 14px;}
+  .logout:hover{background:var(--danger);color:#fff;}
+
+  .search{position:relative;margin-bottom:14px;}
+  .search input{padding-left:34px;}
+  .search::before{content:"⚲";position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;}
+  .add-row{display:flex;gap:8px;margin-bottom:20px;}
+  .add-row input{flex:1;}
+  .add-row button{padding:0 18px;background:var(--ink);color:#fff;}
+  .add-row button:hover{background:#000;}
+
+  .list{list-style:none;margin:0;padding:0;}
+  .list li{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line);}
+  .list li:last-child{border-bottom:none;}
+  .check{
+    width:20px;height:20px;border-radius:7px;border:1.5px solid var(--line);
+    flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    color:var(--accent-ink);font-size:12px;transition:background .15s, border-color .15s;
+  }
+  .check:hover{border-color:var(--accent);}
+  .check.done{background:var(--accent);border-color:var(--accent);}
+  .text{flex:1;font-size:14px;word-break:break-word;cursor:text;}
+  .text.done{color:var(--muted);text-decoration:line-through;}
+  .edit-input{flex:1;padding:7px 10px;font-size:14px;}
+  .row-actions{display:flex;gap:4px;flex-shrink:0;}
+  .icon-btn{background:none;color:var(--muted);font-size:15px;padding:4px 7px;border-radius:7px;}
+  .icon-btn:hover{background:var(--accent-soft);color:var(--accent);}
+  .icon-btn.del:hover{background:var(--danger-soft);color:var(--danger);}
+  .update-btn{background:var(--accent);color:#fff;padding:7px 12px;font-size:13px;}
+  .update-btn:hover{background:var(--accent-dark);}
+
+  .empty{text-align:center;color:var(--muted);font-size:13px;padding:28px 0;}
+  .count{color:var(--muted);font-size:12px;margin-top:16px;text-align:right;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="card" id="loginView">
+  <div class="brand">To<span>Do</span></div>
+  <div class="sub">Log in to your account</div>
+  <label for="loginEmail">Email</label>
+  <input id="loginEmail" type="email" placeholder="you@example.com">
+  <label for="loginPass">Password</label>
+  <input id="loginPass" type="password" placeholder="••••••••">
+  <div class="error" id="loginError"></div>
+  <button class="primary" onclick="handleLogin()">Log in</button>
+  <div class="switch">No account? <a onclick="showView('signup')">Sign up</a></div>
+</div>
+
+<!-- SIGNUP -->
+<div class="card hidden" id="signupView">
+  <div class="brand">To<span>Do</span></div>
+  <div class="sub">Create your account</div>
+  <label for="suName">Name</label>
+  <input id="suName" type="text" placeholder="Mazen Mohamed">
+  <label for="suEmail">Email</label>
+  <input id="suEmail" type="email" placeholder="you@example.com">
+  <label for="suPass">Password</label>
+  <input id="suPass" type="password" placeholder="At least 8 characters">
+  <div class="error" id="signupError"></div>
+  <button class="primary" onclick="handleSignup()">Sign up</button>
+  <div class="switch">Already have an account? <a onclick="showView('login')">Log in</a></div>
+</div>
+
+<!-- TODO APP -->
+<div class="card app-card hidden" id="appView">
+  <div class="app-head">
+    <div>
+      <div class="brand">To<span>Do</span></div>
+      <div class="greeting" id="greeting"></div>
+    </div>
+    <button class="logout" onclick="handleLogout()">Log out</button>
+  </div>
+  <div class="search">
+    <input id="searchInput" type="text" placeholder="Search tasks" oninput="renderTodos()">
+  </div>
+  <div class="add-row">
+    <input id="newTodo" type="text" placeholder="Add a task" onkeydown="if(event.key==='Enter')addTodo()">
+    <button onclick="addTodo()">Add</button>
+  </div>
+  <ul class="list" id="todoList"></ul>
+  <div class="count" id="todoCount"></div>
+</div>
+
+<script>
+  // in-memory only — no backend, data resets on page reload
+  const users = {};
+  let currentUser = null;
+  let editingId = null;
+
+  function showView(name){
+    ['login','signup','app'].forEach(v=>{
+      document.getElementById(v+'View').classList.toggle('hidden', v!==name);
+    });
+  }
+
+  function handleSignup(){
+    const name = document.getElementById('suName').value.trim();
+    const email = document.getElementById('suEmail').value.trim().toLowerCase();
+    const pass = document.getElementById('suPass').value;
+    const err = document.getElementById('signupError');
+    if(!name || !email || !pass){ err.textContent = 'Fill in all fields.'; return; }
+    if(pass.length < 8){ err.textContent = 'Password must be at least 8 characters.'; return; }
+    if(users[email]){ err.textContent = 'An account with this email already exists.'; return; }
+    err.textContent = '';
+    users[email] = { name, email, pass, todos: [] };
+    currentUser = users[email];
+    enterApp();
+  }
+
+  function handleLogin(){
+    const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+    const pass = document.getElementById('loginPass').value;
+    const err = document.getElementById('loginError');
+    const user = users[email];
+    if(!user || user.pass !== pass){ err.textContent = 'Incorrect email or password.'; return; }
+    err.textContent = '';
+    currentUser = user;
+    enterApp();
+  }
+
+  function handleLogout(){
+    currentUser = null;
+    editingId = null;
+    document.getElementById('loginEmail').value = '';
+    document.getElementById('loginPass').value = '';
+    showView('login');
+  }
+
+  function enterApp(){
+    showView('app');
+    document.getElementById('greeting').textContent = `Hi, ${currentUser.name.split(' ')[0]}`;
+    renderTodos();
+  }
+
+  function addTodo(){
+    const input = document.getElementById('newTodo');
+    const text = input.value.trim();
+    if(!text) return;
+    currentUser.todos.unshift({ id: Date.now(), text, done: false });
+    input.value = '';
+    renderTodos();
+  }
+
+  function toggleTodo(id){
+    const t = currentUser.todos.find(t=>t.id===id);
+    if(t) t.done = !t.done;
+    renderTodos();
+  }
+
+  function deleteTodo(id){
+    currentUser.todos = currentUser.todos.filter(t=>t.id!==id);
+    renderTodos();
+  }
+
+  function startEdit(id){
+    editingId = id;
+    renderTodos();
+    const input = document.getElementById('edit-'+id);
+    if(input){ input.focus(); input.select(); }
+  }
+
+  function updateTodo(id){
+    const input = document.getElementById('edit-'+id);
+    const text = input ? input.value.trim() : '';
+    if(!text){ editingId = null; renderTodos(); return; }
+    const t = currentUser.todos.find(t=>t.id===id);
+    if(t) t.text = text;
+    editingId = null;
+    renderTodos();
+  }
+
+  function renderTodos(){
+    const q = document.getElementById('searchInput').value.trim().toLowerCase();
+    const list = document.getElementById('todoList');
+    const filtered = currentUser.todos.filter(t=>t.text.toLowerCase().includes(q));
+    list.innerHTML = '';
+    if(filtered.length === 0){
+      list.innerHTML = `<div class="empty">${currentUser.todos.length===0 ? 'No tasks yet. Add one above.' : 'No tasks match your search.'}</div>`;
+    } else {
+      filtered.forEach(t=>{
+        const li = document.createElement('li');
+        if(editingId === t.id){
+          li.innerHTML = `
+            <input class="edit-input" id="edit-${t.id}" type="text" value="${escapeAttr(t.text)}"
+              onkeydown="if(event.key==='Enter')updateTodo(${t.id}); if(event.key==='Escape'){editingId=null;renderTodos();}">
+            <button class="update-btn" onclick="updateTodo(${t.id})">Update</button>
+          `;
+        } else {
+          li.innerHTML = `
+            <div class="check ${t.done?'done':''}" onclick="toggleTodo(${t.id})">${t.done?'✓':''}</div>
+            <div class="text ${t.done?'done':''}" ondblclick="startEdit(${t.id})">${escapeHtml(t.text)}</div>
+            <div class="row-actions">
+              <button class="icon-btn" title="Edit" onclick="startEdit(${t.id})">✎</button>
+              <button class="icon-btn del" title="Delete" onclick="deleteTodo(${t.id})">✕</button>
+            </div>
+          `;
+        }
+        list.appendChild(li);
+      });
+    }
+    const remaining = currentUser.todos.filter(t=>!t.done).length;
+    document.getElementById('todoCount').textContent =
+      currentUser.todos.length ? `${remaining} of ${currentUser.todos.length} remaining` : '';
+  }
+
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+  function escapeAttr(str){
+    return escapeHtml(str).replace(/"/g,'&quot;');
+  }
+</script>
+</body>
+</html>
